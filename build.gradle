@@ -125,6 +125,11 @@ repositories {
         dirs dev_mods_dir
     }
 
+    maven {
+        name "CurseMaven"
+        url "https://www.cursemaven.com"
+    }
+
     // location of the maven that hosts JEI files
     maven {
         name "Progwml Repo"
@@ -160,6 +165,19 @@ dependencies {
     compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api")
     runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
 
+    // Refined Pipes
+    runtimeOnly fg.deobf("curse.maven:refined-pipes-370696:3113506")
+
+    // Trash Cans
+    runtimeOnly fg.deobf("curse.maven:trash-cans-394535:3144215")
+
+    // Thermal Mods
+    runtimeOnly fg.deobf("curse.maven:cofh-core-69162:3151513")
+    runtimeOnly fg.deobf("curse.maven:thermal-foundation-222880:3151516")
+    runtimeOnly fg.deobf("curse.maven:thermal-expansion-69163:3151753")
+
+    // Refined Storage
+    runtimeOnly fg.deobf("curse.maven:refined-storage-243076:3111240")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

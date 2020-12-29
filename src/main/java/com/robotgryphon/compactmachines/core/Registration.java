@@ -10,11 +10,13 @@ import com.robotgryphon.compactmachines.block.walls.TunnelWallBlock;
 import com.robotgryphon.compactmachines.item.ItemBlockMachine;
 import com.robotgryphon.compactmachines.item.ItemBlockWall;
 import com.robotgryphon.compactmachines.item.ItemPersonalShrinkingDevice;
+import com.robotgryphon.compactmachines.item.tunnels.FluidOutTunnelItem;
 import com.robotgryphon.compactmachines.item.tunnels.ItemTunnelItem;
 import com.robotgryphon.compactmachines.item.tunnels.RedstoneInTunnelItem;
 import com.robotgryphon.compactmachines.item.tunnels.RedstoneOutTunnelItem;
 import com.robotgryphon.compactmachines.reference.EnumMachineSize;
 import com.robotgryphon.compactmachines.tunnels.TunnelDefinition;
+import com.robotgryphon.compactmachines.tunnels.definitions.FluidOutTunnelDefinition;
 import com.robotgryphon.compactmachines.tunnels.definitions.ItemTunnelDefinition;
 import com.robotgryphon.compactmachines.tunnels.definitions.RedstoneTunnelDefinition;
 import net.minecraft.block.AbstractBlock;
@@ -160,6 +162,9 @@ public class Registration {
     public static final RegistryObject<Item> ITEM_REDSTONEOUT_TUNNEL = ITEMS.register("redstone_out_tunnel", () ->
             new RedstoneOutTunnelItem(BASIC_ITEM_PROPS.get()));
 
+    public static final RegistryObject<Item> ITEM_FLUID_TUNNEL_OUT = ITEMS.register("fluid_out_tunnel", () ->
+            new FluidOutTunnelItem(BASIC_ITEM_PROPS.get()));
+
     public static final RegistryObject<TileEntityType<TunnelWallTile>> TUNNEL_WALL_TILE = TILES_ENTITIES.register("tunnel_wall", () ->
             TileEntityType.Builder.create(TunnelWallTile::new, BLOCK_TUNNEL_WALL.get())
                     .build(null));
@@ -168,7 +173,7 @@ public class Registration {
     //   TUNNEL TYPE DEFINITIONS
     // ================================================================================================================
     public static final RegistryObject<TunnelDefinition> ITEM_TUNNEL = TUNNEL_TYPES.register("items", () ->
-        new ItemTunnelDefinition(ITEM_ITEM_TUNNEL.get())
+            new ItemTunnelDefinition(ITEM_ITEM_TUNNEL.get())
     );
 
     public static final RegistryObject<TunnelDefinition> REDSTONE_IN_TUNNEL = TUNNEL_TYPES.register("redstone_in", () ->
@@ -178,6 +183,8 @@ public class Registration {
     public static final RegistryObject<TunnelDefinition> REDSTONE_OUT_TUNNEL = TUNNEL_TYPES.register("redstone_out", () ->
             new RedstoneTunnelDefinition(ITEM_REDSTONEOUT_TUNNEL.get())
     );
+
+    public static final RegistryObject<TunnelDefinition> FLUID_OUT_TUNNEL = TUNNEL_TYPES.register("fluid_out", FluidOutTunnelDefinition::new);
 
     // ================================================================================================================
     //   DIMENSION
