@@ -5,9 +5,13 @@ import com.robotgryphon.compactmachines.compat.theoneprobe.IProbeData;
 import com.robotgryphon.compactmachines.compat.theoneprobe.IProbeDataProvider;
 import com.robotgryphon.compactmachines.compat.theoneprobe.providers.TunnelProvider;
 import com.robotgryphon.compactmachines.core.Registration;
+import com.robotgryphon.compactmachines.data.machines.CompactMachineRegistrationData;
+import com.robotgryphon.compactmachines.teleportation.DimensionalPosition;
+import com.robotgryphon.compactmachines.tunnels.EnumTunnelSide;
 import com.robotgryphon.compactmachines.tunnels.TunnelDefinition;
 import com.robotgryphon.compactmachines.tunnels.TunnelHelper;
 import com.robotgryphon.compactmachines.tunnels.api.IRedstoneTunnel;
+import com.robotgryphon.compactmachines.util.CompactMachineUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.item.ItemEntity;
@@ -25,7 +29,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
@@ -157,5 +163,35 @@ public class TunnelWallBlock extends WallBlock implements IProbeDataProvider {
     @Override
     public void addProbeData(IProbeData data, PlayerEntity player, World world, BlockState state) {
         TunnelProvider.exec(data, player, world, state);
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, @Nonnull World world, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+        super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
+
+        if(world.isRemote)
+            return;
+
+        ServerWorld serverWorld = (ServerWorld) world;
+        TunnelWallTile tile = (TunnelWallTile) serverWorld.getTileEntity(pos);
+        if(tile == null)
+            return;
+
+        Optional<CompactMachineRegistrationData> machineInfo = tile.getMachineInfo();
+        if(!machineInfo.isPresent())
+            return;
+
+        CompactMachineRegistrationData machineData = machineInfo.get();
+        Block block = CompactMachineUtil.getMachineBlockBySize(machineData.getSize());
+
+        Optional<DimensionalPosition> tunnelConnectedPosition = TunnelHelper.getTunnelConnectedPosition(tile, EnumTunnelSide.OUTSIDE);
+        tunnelConnectedPosition.ifPresent(connPos -> {
+            Optional<ServerWorld> connectedWorld = connPos.getWorld(serverWorld);
+            connectedWorld.ifPresent(cw -> {
+                BlockPos connPospos = connPos.getBlockPosition();
+                cw.notifyNeighborsOfStateChange(connPospos, block);
+            });
+        });
+
     }
 }

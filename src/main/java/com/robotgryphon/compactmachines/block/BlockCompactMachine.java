@@ -1,6 +1,7 @@
 package com.robotgryphon.compactmachines.block;
 
 import com.robotgryphon.compactmachines.block.tiles.CompactMachineTile;
+import com.robotgryphon.compactmachines.block.tiles.TunnelWallTile;
 import com.robotgryphon.compactmachines.compat.theoneprobe.providers.CompactMachineProvider;
 import com.robotgryphon.compactmachines.compat.theoneprobe.IProbeData;
 import com.robotgryphon.compactmachines.compat.theoneprobe.IProbeDataProvider;
@@ -8,8 +9,12 @@ import com.robotgryphon.compactmachines.config.CommonConfig;
 import com.robotgryphon.compactmachines.config.ServerConfig;
 import com.robotgryphon.compactmachines.core.EnumMachinePlayersBreakHandling;
 import com.robotgryphon.compactmachines.core.Registration;
+import com.robotgryphon.compactmachines.data.machines.CompactMachineRegistrationData;
 import com.robotgryphon.compactmachines.reference.EnumMachineSize;
 import com.robotgryphon.compactmachines.reference.Reference;
+import com.robotgryphon.compactmachines.teleportation.DimensionalPosition;
+import com.robotgryphon.compactmachines.tunnels.EnumTunnelSide;
+import com.robotgryphon.compactmachines.tunnels.TunnelHelper;
 import com.robotgryphon.compactmachines.util.CompactMachineUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -33,6 +38,7 @@ import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class BlockCompactMachine extends Block implements IProbeDataProvider {
@@ -104,8 +110,8 @@ public class BlockCompactMachine extends Block implements IProbeDataProvider {
     }
 
     @Override
-    public void onNeighborChange(BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor) {
-        super.onNeighborChange(state, world, pos, neighbor);
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block blockIn, BlockPos neighbor, boolean isMoving) {
+        super.neighborChanged(state, world, pos, blockIn, neighbor, isMoving);
 
         if (world.isRemote()) {
             return;
@@ -131,19 +137,35 @@ public class BlockCompactMachine extends Block implements IProbeDataProvider {
         }
 
 //        TODO Tile Entity and Server Stuff
-//        // Make sure we don't stack overflow when we get in a notifyBlockChange loop.
-//        // Just ensure only a single notification happens per tick.
-//        TileEntityMachine te = (TileEntityMachine) world.getTileEntity(pos);
-//        if(te.isInsideItself() || te.alreadyNotifiedOnTick) {
-//            return;
-//        }
-//
-//        ServerWorld machineWorld = DimensionTools.getServerMachineWorld();
-//        BlockPos neighborPos = te.getConnectedBlockPosition(facing);
-//        if(neighborPos != null && machineWorld.getTileEntity(neighborPos) instanceof TileEntityTunnel) {
-//            machineWorld.notifyNeighborsOfStateChange(neighborPos, Blockss.tunnel, false);
-//            te.alreadyNotifiedOnTick = true;
-//        }
+        CompactMachineTile tile = (CompactMachineTile) world.getTileEntity(pos);
+        if(tile == null)
+            return;
+
+        Optional<CompactMachineRegistrationData> machineData = tile.getMachineData();
+        Direction finalFacing = facing;
+        ServerWorld sWorld = (ServerWorld) world;
+        ServerWorld compactWorld = sWorld.getServer().getWorld(Registration.COMPACT_DIMENSION);
+
+        if(compactWorld == null)
+            return;
+
+        machineData.ifPresent(data -> {
+            Set<BlockPos> tunnels = TunnelHelper.getTunnelsForMachineSide(data.getId(), sWorld, finalFacing);
+            tunnels.forEach(tun -> {
+                TileEntity tTunnel = compactWorld.getTileEntity(tun);
+                if(tTunnel instanceof TunnelWallTile) {
+                    TunnelWallTile tTunnelReal = (TunnelWallTile) tTunnel;
+                    Optional<DimensionalPosition> tunnelConnectedPosition = TunnelHelper.getTunnelConnectedPosition(tTunnelReal, EnumTunnelSide.INSIDE);
+                    tunnelConnectedPosition.ifPresent(dimPos -> {
+                        BlockPos bp = dimPos.getBlockPosition();
+                        Optional<BlockState> connectedState = TunnelHelper.getConnectedState(compactWorld, tTunnelReal, EnumTunnelSide.INSIDE);
+
+                        compactWorld.notifyNeighborsOfStateChange(bp, Registration.BLOCK_TUNNEL_WALL.get());
+                    });
+                }
+            });
+        });
+
 //
 //        RedstoneTunnelData tunnelData = te.getRedstoneTunnelForSide(facing);
 //        if(tunnelData != null && !tunnelData.isOutput) {

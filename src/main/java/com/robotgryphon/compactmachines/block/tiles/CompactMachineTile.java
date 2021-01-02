@@ -142,8 +142,14 @@ public class CompactMachineTile extends TileEntity implements ICapabilityProvide
 
     @Nonnull
     @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap) {
+        return super.getCapability(cap);
+    }
+
+    @Nonnull
+    @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if(world.isRemote())
+        if(world.isRemote)
             return super.getCapability(cap, side);
 
         ServerWorld serverWorld = (ServerWorld) world;

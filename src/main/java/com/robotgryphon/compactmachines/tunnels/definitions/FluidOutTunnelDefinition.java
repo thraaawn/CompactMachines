@@ -1,5 +1,6 @@
 package com.robotgryphon.compactmachines.tunnels.definitions;
 
+import com.robotgryphon.compactmachines.CompactMachines;
 import com.robotgryphon.compactmachines.block.tiles.TunnelWallTile;
 import com.robotgryphon.compactmachines.core.Registration;
 import com.robotgryphon.compactmachines.teleportation.DimensionalPosition;
@@ -14,6 +15,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 
@@ -29,6 +31,29 @@ public class FluidOutTunnelDefinition extends TunnelDefinition implements ICapab
     @Nonnull
     @Override
     public <T> LazyOptional<T> getInternalCapability(ServerWorld compactWorld, BlockPos tunnelPos, @Nonnull Capability<T> cap, Direction side) {
+        TileEntity te = compactWorld.getTileEntity(tunnelPos);
+        if (te instanceof TunnelWallTile) {
+            TunnelWallTile twt = (TunnelWallTile) te;
+
+            Optional<BlockState> connectedState = TunnelHelper.getConnectedState(compactWorld, twt, EnumTunnelSide.INSIDE);
+            if (!connectedState.isPresent())
+                return LazyOptional.empty();
+
+            Optional<DimensionalPosition> tunnelConnectedPosition = TunnelHelper.getTunnelConnectedPosition(twt, EnumTunnelSide.INSIDE);
+            if (!tunnelConnectedPosition.isPresent())
+                return LazyOptional.empty();
+
+            Direction tunnelSide = twt.getTunnelSide();
+
+            DimensionalPosition connectedInsidePos = tunnelConnectedPosition.get();
+            if (connectedState.get().hasTileEntity()) {
+                TileEntity connectedTile = compactWorld.getTileEntity(connectedInsidePos.getBlockPosition());
+                if (connectedTile != null) {
+                    return connectedTile.getCapability(cap, tunnelSide);
+                }
+            }
+        }
+
         return LazyOptional.empty();
     }
 
@@ -64,6 +89,7 @@ public class FluidOutTunnelDefinition extends TunnelDefinition implements ICapab
             if (connectedState.get().hasTileEntity()) {
                 TileEntity connectedTile = csw.getTileEntity(connectedPos);
                 if (connectedTile != null) {
+                    LazyOptional<T> nonCap = connectedTile.getCapability(cap);
                     LazyOptional<T> sidedCap = connectedTile.getCapability(cap, twt.getTunnelSide().getOpposite());
                     if(sidedCap.isPresent())
                         return sidedCap;
