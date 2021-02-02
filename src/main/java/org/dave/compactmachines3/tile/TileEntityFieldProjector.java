@@ -1,5 +1,6 @@
 package org.dave.compactmachines3.tile;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,6 +16,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.dave.compactmachines3.block.BlockFieldProjector;
 import org.dave.compactmachines3.init.Blockss;
 import org.dave.compactmachines3.miniaturization.MultiblockRecipe;
@@ -28,7 +31,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class TileEntityFieldProjector extends TileEntity implements ITickable {
-    public int ticks = 0;
     private int activeMagnitude = 0;
 
     protected UUID owner;
@@ -38,7 +40,7 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public EnumFacing getDirection() {
-        if(this.getWorld().getBlockState(this.pos).getBlock() == Blockss.fieldProjector) {
+        if (this.getWorld().getBlockState(this.pos).getBlock() == Blockss.fieldProjector) {
             return this.getWorld().getBlockState(this.pos).getValue(BlockFieldProjector.FACING);
         }
 
@@ -46,12 +48,12 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public TileEntityCraftingHologram getCraftingHologram() {
-        if(activeMagnitude == 0) {
+        if (activeMagnitude == 0) {
             return null;
         }
 
         BlockPos center = this.getPos().offset(this.getDirection(), activeMagnitude * 2);
-        if(getWorld().getTileEntity(center) instanceof TileEntityCraftingHologram) {
+        if (getWorld().getTileEntity(center) instanceof TileEntityCraftingHologram) {
             return (TileEntityCraftingHologram) getWorld().getTileEntity(center);
         }
 
@@ -64,7 +66,7 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
 
     public int getCraftingProgress() {
         TileEntityCraftingHologram te = getCraftingHologram();
-        if(te == null) {
+        if (te == null) {
             return 0;
         }
 
@@ -73,20 +75,20 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
 
     public float getCraftingProgressPercent() {
         TileEntityCraftingHologram te = getCraftingHologram();
-        if(te == null) {
+        if (te == null) {
             return 0.0f;
         }
 
-        if(te.getRecipe() == null) {
+        if (te.getRecipe() == null) {
             return 0.0f;
         }
 
-        return (float)te.getProgress() / (float)te.getRecipe().getTicks();
+        return (float) te.getProgress() / (float) te.getRecipe().getTicks();
     }
 
     public MultiblockRecipe getActiveRecipe() {
         TileEntityCraftingHologram te = getCraftingHologram();
-        if(te == null) {
+        if (te == null) {
             return null;
         }
 
@@ -94,7 +96,7 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public ItemStack getActiveCraftingResult() {
-        if(getActiveRecipe() == null) {
+        if (getActiveRecipe() == null) {
             return ItemStack.EMPTY;
         }
 
@@ -102,20 +104,20 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public List<BlockPos> getInsideBlocks() {
-        if(activeMagnitude == 0) {
+        if (activeMagnitude == 0) {
             return Collections.emptyList();
         }
 
         int fieldDimension = activeMagnitude * 2 - 1;
-        int fieldRadius = (fieldDimension+1)/2;
+        int fieldRadius = (fieldDimension + 1) / 2;
 
         BlockPos frontTopLeft = this.getPos()
-                .offset(this.getDirection(), activeMagnitude+1)
-                .offset(EnumFacing.UP, fieldRadius-1)
-                .offset(this.getDirection().rotateYCCW(), fieldRadius-1);
+                .offset(this.getDirection(), activeMagnitude + 1)
+                .offset(EnumFacing.UP, fieldRadius - 1)
+                .offset(this.getDirection().rotateYCCW(), fieldRadius - 1);
 
         List<BlockPos> insideBlocks = new ArrayList<>();
-        for(int x = 0; x < fieldDimension; x++) {
+        for (int x = 0; x < fieldDimension; x++) {
             for (int y = 0; y < fieldDimension; y++) {
                 for (int z = 0; z < fieldDimension; z++) {
                     BlockPos blockToCheck = frontTopLeft
@@ -125,7 +127,7 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
 
                     // ((WorldServer)world).spawnParticle(EnumParticleTypes.REDSTONE, true, blockToCheck.getX() + 0.5d, blockToCheck.getY() + 0.5d, blockToCheck.getZ() + 0.5d, 10, 0.0d, 0.0d, 0.0d, 0);
 
-                    if(getWorld().isAirBlock(blockToCheck)) {
+                    if (getWorld().isAirBlock(blockToCheck)) {
                         continue;
                     }
 
@@ -137,18 +139,17 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
         return insideBlocks;
     }
 
-
     private TileEntityFieldProjector getMasterByAddingDirections(EnumFacing A, EnumFacing B) {
-        for(int size = 1; size < ConfigurationHandler.Settings.getMaximumMagnitude(); size++) {
+        for (int size = 1; size <= ConfigurationHandler.Settings.getMaximumMagnitude(); size++) {
             BlockPos pos = this.getPos().offset(A, size).offset(B, size);
 
-            if(!(getWorld().getTileEntity(pos) instanceof TileEntityFieldProjector)) {
+            if (!(getWorld().getTileEntity(pos) instanceof TileEntityFieldProjector)) {
                 continue;
             }
             TileEntityFieldProjector te = (TileEntityFieldProjector) getWorld().getTileEntity(pos);
 
             // It might be facing the wrong direction actually. If so, skip it
-            if(!te.isMaster()) {
+            if (!te.isMaster()) {
                 continue;
             }
 
@@ -159,17 +160,17 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public TileEntityFieldProjector getMasterProjector() {
-        if(isMaster()) {
+        if (isMaster()) {
             return this;
         }
 
-        if(this.getDirection() == EnumFacing.EAST) {
+        if (this.getDirection() == EnumFacing.EAST) {
             // Master must be opposite, i.e. WEST
             return getMasterByAddingDirections(EnumFacing.EAST, EnumFacing.EAST);
-        } else if(this.getDirection() == EnumFacing.NORTH) {
+        } else if (this.getDirection() == EnumFacing.NORTH) {
             // Master is to the north and west
             return getMasterByAddingDirections(EnumFacing.NORTH, EnumFacing.EAST);
-        } else if(this.getDirection() == EnumFacing.SOUTH) {
+        } else if (this.getDirection() == EnumFacing.SOUTH) {
             // Master is to the south and west
             return getMasterByAddingDirections(EnumFacing.SOUTH, EnumFacing.EAST);
         }
@@ -182,7 +183,7 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public List<BlockPos> getMissingProjectors(int magnitude) {
-        int radius = magnitude*2;
+        int radius = magnitude * 2;
 
         BlockPos center = this.getPos().offset(this.getDirection(), radius);
 
@@ -193,17 +194,17 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
         List<BlockPos> missingBlocks = new ArrayList<>();
         IBlockState oppositeState = world.getBlockState(opposite);
 
-        if(oppositeState.getBlock() != Blockss.fieldProjector || oppositeState.getValue(BlockFieldProjector.FACING) != this.getDirection().getOpposite() || world.isBlockPowered(opposite)) {
+        if (oppositeState.getBlock() != Blockss.fieldProjector || oppositeState.getValue(BlockFieldProjector.FACING) != this.getDirection().getOpposite() || world.isBlockPowered(opposite)) {
             missingBlocks.add(opposite);
         }
 
         IBlockState cwState = world.getBlockState(cw);
-        if(cwState.getBlock() != Blockss.fieldProjector || cwState.getValue(BlockFieldProjector.FACING) != this.getDirection().rotateY().getOpposite() || world.isBlockPowered(cw)) {
+        if (cwState.getBlock() != Blockss.fieldProjector || cwState.getValue(BlockFieldProjector.FACING) != this.getDirection().rotateY().getOpposite() || world.isBlockPowered(cw)) {
             missingBlocks.add(cw);
         }
 
         IBlockState ccwState = world.getBlockState(ccw);
-        if(ccwState.getBlock() != Blockss.fieldProjector || ccwState.getValue(BlockFieldProjector.FACING) != this.getDirection().rotateYCCW().getOpposite() || world.isBlockPowered(ccw)) {
+        if (ccwState.getBlock() != Blockss.fieldProjector || ccwState.getValue(BlockFieldProjector.FACING) != this.getDirection().rotateYCCW().getOpposite() || world.isBlockPowered(ccw)) {
             missingBlocks.add(ccw);
         }
 
@@ -211,9 +212,9 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public int getCraftingAreaMagnitude() {
-        for(int magnitude = 1; magnitude <= ConfigurationHandler.Settings.getMaximumMagnitude() +1; magnitude++) {
-            BlockPos opposite = getPos().offset(getDirection(), magnitude*4);
-            if(!(world.getTileEntity(opposite) instanceof TileEntityFieldProjector)) {
+        for (int magnitude = 1; magnitude <= ConfigurationHandler.Settings.getMaximumMagnitude(); magnitude++) {
+            BlockPos opposite = getPos().offset(getDirection(), magnitude * 4);
+            if (!(world.getTileEntity(opposite) instanceof TileEntityFieldProjector)) {
                 continue;
             }
 
@@ -224,30 +225,18 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public boolean canGenerateFieldAtMagnitude(int magnitude) {
-        if(!isMaster()) {
-            return false;
-        }
-
-        if(getInvalidBlockInField(magnitude) == null) {
-            return true;
-        }
-
-        return false;
+        return getInvalidBlockInField(magnitude) == null;
     }
 
     public BlockPos getInvalidBlockInField(int magnitude) {
-        if(!isMaster()) {
-            return null;
-        }
-
-        int fieldDimension = (magnitude+1) * 2 - 1;
+        int fieldDimension = (2 * magnitude) + 1; // (x + 1) * 2 - 1 -> 2x + 2 - 1 -> 2x + 1, which is simpler
 
         BlockPos center = this.getPos().offset(this.getDirection(), magnitude);
         BlockPos topLeft = center.offset(EnumFacing.UP, magnitude).offset(this.getDirection().rotateYCCW(), magnitude);
 
         List<BlockPos> positionsToCheck = StructureTools.getCubePositionsLegacy(topLeft, fieldDimension, fieldDimension, fieldDimension, false);
-        for(BlockPos pos : positionsToCheck) {
-            if(!getWorld().isAirBlock(pos)) {
+        for (BlockPos pos : positionsToCheck) {
+            if (!getWorld().isAirBlock(pos)) {
                 return pos;
             }
         }
@@ -280,10 +269,9 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        if(this.getWorld().getBlockState(this.getPos()).getBlock() == Blockss.fieldProjector) {
+        if (this.getWorld().getBlockState(this.getPos()).getBlock() == Blockss.fieldProjector) {
             BlockPos centerOfField = this.getPos().offset(this.getDirection(), this.getActiveMagnitude() * 2);
-            AxisAlignedBB cube = new AxisAlignedBB(centerOfField).grow(this.getActiveMagnitude() * 3);
-            return cube;
+            return new AxisAlignedBB(centerOfField).grow(this.getActiveMagnitude() * 3);
         } else {
             return super.getRenderBoundingBox();
         }
@@ -291,94 +279,73 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
 
     @Override
     public void update() {
-        ticks++;
+        if (!world.isRemote)
+            world.updateComparatorOutputLevel(getPos(), Blockss.fieldProjector);
 
-        if(world.isBlockPowered(getPos())) {
+        if (world.isBlockPowered(getPos())) {
             return;
         }
 
         int magnitude = getCraftingAreaMagnitude();
-        if(magnitude <= 1) {
+        if (magnitude <= 1) {
             return;
         }
 
         // There is nothing to do when we are missing one of the other field projectors
-        if(getMissingProjectors(magnitude).size() > 0) {
+        if (!this.getMissingProjectors(magnitude).isEmpty()) {
             activeMagnitude = 0;
             return;
         }
 
-        // One of the projectors must be a master projector
-        TileEntityFieldProjector master = getMasterProjector();
-        if(master == null) {
-            return;
-        }
-
-        // Then check the crafting area is free, this is done by the master projector
-        if(!master.canGenerateFieldAtMagnitude(magnitude)) {
+        if (!this.canGenerateFieldAtMagnitude(magnitude)) {
             return;
         }
 
         activeMagnitude = magnitude;
-        if(world.isRemote) {
+        if (world.isRemote) {
             // The client is already done
             return;
         }
 
-        if(master.getActiveRecipe() != null) {
-            world.updateComparatorOutputLevel(getPos(), null);
+        if (!this.isMaster()) // Only run the rest of the recipe code on the master
             return;
-        }
 
         BlockPos center = this.getPos().offset(this.getDirection(), magnitude * 2);
 
-        // Determine whether there is a catalyst item inside this projectors field
-        double growWD = magnitude + 0.5d;
-        BlockPos centerPosOfField = this.getPos().offset(this.getDirection(), magnitude);
-        AxisAlignedBB centerBB = new AxisAlignedBB(centerPosOfField).grow(0, growWD, 0);
-        if(getDirection() == EnumFacing.NORTH || getDirection() == EnumFacing.SOUTH) {
-            centerBB = centerBB.grow(growWD, 0, 0);
-        } else {
-            centerBB = centerBB.grow(0, 0, growWD);
-        }
+        // Determine whether there is a catalyst item inside the entire field
+        double growWD = magnitude + 1.5d;
+        AxisAlignedBB fieldBB = new AxisAlignedBB(center).grow(growWD);
+        List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, fieldBB);
 
-        List<EntityItem> items = world.getEntitiesWithinAABB(EntityItem.class, centerBB);
-
-        if(isMaster()) {
-            BlockPos centerOfTopField = this.getPos().offset(this.getDirection(), magnitude*2).offset(EnumFacing.UP, magnitude);
-            AxisAlignedBB topBB = new AxisAlignedBB(centerOfTopField).grow(magnitude + 0.5d, 0, magnitude + 0.5d);
-            items.addAll(world.getEntitiesWithinAABB(EntityItem.class, topBB));
-        }
-
-        for(EntityItem item : items) {
-            if(item.ticksExisted > ConfigurationHandler.Settings.maximumCraftingCatalystAge) {
+        for (EntityItem item : items) {
+            if (item.ticksExisted > ConfigurationHandler.Settings.maximumCraftingCatalystAge) {
                 continue;
             }
 
             MultiblockRecipe multiblockRecipe = MultiblockRecipes.tryCrafting(world, getPos(), item.getItem());
-            if(multiblockRecipe == null) {
+            if (multiblockRecipe == null) {
                 continue;
             }
 
             // Remove blocks from the world
-            for(BlockPos pos : getInsideBlocks()) {
+            for (BlockPos pos : getInsideBlocks()) {
                 world.setBlockToAir(pos);
-                ((WorldServer)world).spawnParticle(EnumParticleTypes.SMOKE_LARGE, pos.getX(), pos.getY(), pos.getZ(), 10, 0.5D, 0.5D, 0.5D, 0.01D);
+                ((WorldServer) world).spawnParticle(EnumParticleTypes.SMOKE_LARGE, pos.getX(), pos.getY(), pos.getZ(), 10, 0.5D, 0.5D, 0.5D, 0.01D);
             }
 
             // Reduce the number of items in the stack
             ItemStack stack = item.getItem();
-            if(stack.getCount() == 1) {
-                item.setDead();
-            } else if(stack.getCount() > 1) {
+            if (stack.getCount() > 1) {
                 stack.setCount(stack.getCount() - 1);
                 item.setItem(stack.copy());
+            } else {
+                item.setDead();
             }
 
             // Create recipe hologram
             world.setBlockState(center, Blockss.craftingHologram.getDefaultState());
             TileEntityCraftingHologram teHologram = (TileEntityCraftingHologram) world.getTileEntity(center);
-            if(teHologram != null) {
+            if (teHologram != null) {
                 teHologram.setRecipe(multiblockRecipe);
             }
         }
@@ -405,7 +372,7 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
 
-        if(hasOwner()) {
+        if (hasOwner()) {
             compound.setUniqueId("owner", this.owner);
         }
 
@@ -416,8 +383,10 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
         return owner;
     }
 
+    @SideOnly(Side.SERVER)
     public String getOwnerName() {
-        return FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerProfileCache().getProfileByUUID(getOwner()).getName();
+        GameProfile profile = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerProfileCache().getProfileByUUID(getOwner());
+        return profile == null ? null : profile.getName();
     }
 
     public boolean hasOwner() {
@@ -429,7 +398,7 @@ public class TileEntityFieldProjector extends TileEntity implements ITickable {
     }
 
     public void setOwner(EntityPlayer player) {
-        if(player == null) {
+        if (player == null) {
             return;
         }
 

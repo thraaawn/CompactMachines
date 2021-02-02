@@ -286,8 +286,11 @@ public class ConfigurationHandler {
         public static int maximumCraftingCatalystAge;
 
         public static int getMaximumMagnitude() {
-            // TODO: This doesn't have parenthesis and therefore evaluates to minus (1/2) which floors to minus 0. Investigate what this should actually do?
-            return ConfigurationHandler.Settings.maximumCraftingAreaSize - 1 / 2;
+            // magnitude -> field size = (2 * magnitude) - 1
+            // field size -> magnitude = (field size + 1) / 2
+            // This means this method is trying to get the magnitude from the field size, which was incorrectly calculated.
+            // This has been fixed.
+            return (ConfigurationHandler.Settings.maximumCraftingAreaSize + 1) / 2;
         }
     }
 }
