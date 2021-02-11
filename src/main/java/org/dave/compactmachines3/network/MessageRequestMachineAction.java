@@ -41,6 +41,7 @@ public class MessageRequestMachineAction implements IMessage {
         TELEPORT_INSIDE,
         TELEPORT_OUTSIDE,
         TOGGLE_LOCKED,
-        TRY_TO_ENTER
+        TRY_TO_ENTER,
+        RESET_SPAWNPOINT
     }
 }

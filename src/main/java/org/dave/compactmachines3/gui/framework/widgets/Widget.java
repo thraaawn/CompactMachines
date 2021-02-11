@@ -4,9 +4,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import org.dave.compactmachines3.gui.framework.GUI;
-import org.dave.compactmachines3.gui.framework.event.*;
+import org.dave.compactmachines3.gui.framework.event.FocusChangedEvent;
+import org.dave.compactmachines3.gui.framework.event.IEvent;
+import org.dave.compactmachines3.gui.framework.event.IWidgetListener;
+import org.dave.compactmachines3.gui.framework.event.MouseClickEvent;
+import org.dave.compactmachines3.gui.framework.event.WidgetEventResult;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Widget {
     public int x;
@@ -74,7 +83,6 @@ public class Widget {
         this.tooltipLines.addAll(strings);
         return this;
     }
-
 
     public boolean focusable() {
         return true;

@@ -31,6 +31,7 @@ import org.dave.compactmachines3.api.IRemoteBlockProvider;
 import org.dave.compactmachines3.block.BlockMachine;
 import org.dave.compactmachines3.integration.CapabilityNullHandlerRegistry;
 import org.dave.compactmachines3.misc.ConfigurationHandler;
+import org.dave.compactmachines3.misc.Vec3d2f;
 import org.dave.compactmachines3.reference.EnumMachineSize;
 import org.dave.compactmachines3.world.ChunkLoadingMachines;
 import org.dave.compactmachines3.world.WorldSavedDataMachines;
@@ -152,19 +153,21 @@ public class TileEntityMachine extends TileEntity implements ICapabilityProvider
         // "roomPos" is set to the northwest corner of the machine at y=40
         StructureTools.generateCubeForMachine(this);
 
-        Vec3d destination = new Vec3d(this.getCenterRoomPos()).add(0.5, 2, 0.5);
+        Vec3d2f destination = getDefaultSpawnPoint();
 
         WorldSavedDataMachines.getInstance().addSpawnPoint(this.id, destination);
     }
 
-    // The package is marked as returning non-null, but this is not true.
-    @SuppressWarnings("ConstantConditions")
+    public Vec3d2f getDefaultSpawnPoint() {
+        return new Vec3d2f(new Vec3d(this.getCenterRoomPos()).add(0.5, 2, 0.5), 0, 0);
+    }
+
     public boolean isAllowedToEnter(EntityPlayer player) {
         return !isLocked()
                 || !hasOwner()
                 || player.getUniqueID().equals(owner)
                 || isOnWhiteList(player)
-                || (player.getServer() != null && player.getServer().getPlayerList().getOppedPlayers().getEntry(player.getGameProfile()) != null);
+                || (player.getServer() != null && player.getServer().getPlayerList().canSendCommands(player.getGameProfile()));
     }
 
     public void syncRoomPos() {
@@ -464,6 +467,7 @@ public class TileEntityMachine extends TileEntity implements ICapabilityProvider
 
         WorldServer machineWorld = DimensionTools.getServerMachineWorld();
         IBlockState state = machineWorld.getBlockState(insetPos);
+        //noinspection deprecation
         return state.getBlock().getItem(machineWorld, insetPos, state);
     }
 

@@ -31,6 +31,12 @@ hint.compactmachines3.bed_position_set=重生位置已设置到本机械
 hint.compactmachines3.not_permitted_to_enter=You do not have permission to enter this machine
 hint.compactmachines3.all_tunnels_used=You have already placed 6 tunnels!
 hint.compactmachines3.all_redstone_tunnels_used=You have already placed 6 redstone tunnels!
+hint.compactmachines3.no_spawnpoint_found=A safe spawnpoint in the room could not be found!
+hint.compactmachines3.reset_spawnpoint=Spawnpoint reset to %d, %d, %d.
+hint.compactmachines3.used_safe_spawnpoint=The room's spawnpoint was obstructed, so you were teleported to a fallback location.
+hint.compactmachines3.illegal_exit=You tried to escape from the machine!
+hint.compactmachines3.illegal_teleport=You entered a machine without use of a Personal Shrinking Device!
+hint.compactmachines3.entered_too_soon=You must wait at least %s second%s between exiting a machine and entering again!
 
 hint.compactmachines3.skyworld.no_block_breaking=You can not break any blocks in the Compact Hub!
 hint.compactmachines3.skyworld.no_block_placing=You can not place any blocks in the Compact Hub!
@@ -80,10 +86,14 @@ compactmachines3.config.allowPickupEmptyMachines=Allow Pickup of Empty Machines
 compactmachines3.config.allowPickupEmptyMachines.tooltip=If set to true, breaking a machine block that was never used will clear the NBT data.\nThis is disabled by default because it clears the owner of the machine block which may be an unintended side-effect.\nThis can be helpful to players who want to pick up empty machines and stack them since items with different NBT do not stack.
 compactmachines3.config.allowRespawning=Allow Respawning
 compactmachines3.config.allowRespawning.tooltip=Whether players can respawn inside of Compact Machines, i.e. place beds and sleep there.
+compactmachines3.config.allowUnsafeTeleport=Allow Unsafe Teleportation
+compactmachines3.config.allowUnsafeTeleport.tooltip=Whether players can teleport into machines with unsafe spawnpoints.\nIf true, players can suffocate or glitch out of the box if teleported into unsafe spawnpoints.\nIf false, a safe spawnpoint will attempted to be found if needed.
 compactmachines3.config.keepPlayersInside=Keep Players Inside Machine
 compactmachines3.config.keepPlayersInside.tooltip=Block players from leaving the confines of the box of the Compact Machine they should currently be in, only applies to players not in creative/spectator.
 compactmachines3.config.spawnRate=Entity Spawn Rate
 compactmachines3.config.spawnRate.tooltip=How often to try spawning entities inside of machines in ticks.
+compactmachines3.config.waitTime=Machine Enter Wait Time
+compactmachines3.config.waitTime.tooltip=How long players must wait in seconds after exiting a machine before they can enter the same machine again.\nA higher value means players cannot spam entering and exiting the same machine.\nSet to 0 to disable.
 
 # Miniaturization Category
 compactmachines3.config.maximumCraftingAreaSize=Maximum Crafting Area Size
@@ -210,6 +220,7 @@ gui.compactmachines3.compactsky.whitelist=Whitelist
 gui.compactmachines3.compactsky.preview=Preview
 gui.compactmachines3.compactsky.enter=Enter machine
 gui.compactmachines3.compactsky.rename=Rename
+gui.compactmachines3.compactsky.reset_spawnpoint=Reset the room spawnpoint to the closest air spot from the center.
 
 gui.compactmachines3.compactsky.configuration.startLocked=Start machines in locked state
 gui.compactmachines3.compactsky.configuration.givePSD=Give players a Shrinking Device on first spawn

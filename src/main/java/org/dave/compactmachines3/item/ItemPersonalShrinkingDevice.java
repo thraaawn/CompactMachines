@@ -10,7 +10,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
@@ -19,6 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.dave.compactmachines3.CompactMachines3;
 import org.dave.compactmachines3.misc.ConfigurationHandler;
+import org.dave.compactmachines3.misc.Vec3d2f;
 import org.dave.compactmachines3.reference.GuiIds;
 import org.dave.compactmachines3.world.WorldSavedDataMachines;
 import org.dave.compactmachines3.world.tools.StructureTools;
@@ -29,8 +29,6 @@ import java.util.List;
 
 public class ItemPersonalShrinkingDevice extends ItemBase {
     public ItemPersonalShrinkingDevice() {
-        super();
-
         this.setCreativeTab(CompactMachines3.CREATIVE_TAB);
         this.setMaxStackSize(1);
     }
@@ -56,12 +54,12 @@ public class ItemPersonalShrinkingDevice extends ItemBase {
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
         if(hand == EnumHand.OFF_HAND) {
-            return new ActionResult(EnumActionResult.FAIL, stack);
+            return new ActionResult<>(EnumActionResult.FAIL, stack);
         }
 
         if(world.provider.getDimension() != ConfigurationHandler.Settings.dimensionId) {
             player.openGui(CompactMachines3.instance, GuiIds.PSD_GUIDE.ordinal(), world, (int) player.posX, (int) player.posY, (int) player.posZ);
-            return new ActionResult(EnumActionResult.SUCCESS, stack);
+            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
 
         if(!world.isRemote && player instanceof EntityPlayerMP) {
@@ -69,7 +67,7 @@ public class ItemPersonalShrinkingDevice extends ItemBase {
 
             if(player.isSneaking()) {
                 int id = StructureTools.getIdForPos(player.getPosition());
-                Vec3d pos = player.getPositionVector();
+                Vec3d2f pos = new Vec3d2f(player);
                 WorldSavedDataMachines.getInstance().addSpawnPoint(id, pos);
 
                 TextComponentTranslation tc = new TextComponentTranslation("item.compactmachines3.psd.spawnpoint_set");
@@ -80,9 +78,6 @@ public class ItemPersonalShrinkingDevice extends ItemBase {
             }
         }
 
-        return new ActionResult(EnumActionResult.SUCCESS, stack);
+        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
     }
-
-
-
 }

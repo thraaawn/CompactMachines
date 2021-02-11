@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.dave.compactmachines3.CompactMachines3;
 import org.dave.compactmachines3.misc.ConfigurationHandler;
+import org.dave.compactmachines3.misc.Vec3d2f;
 import org.dave.compactmachines3.reference.EnumMachineSize;
 import org.dave.compactmachines3.tile.TileEntityMachine;
 import org.dave.compactmachines3.utility.DimensionBlockPos;
@@ -30,7 +31,7 @@ import java.util.UUID;
 public class WorldSavedDataMachines extends WorldSavedData {
 
     public int nextId = 0;
-    public Map<Integer, Vec3d> spawnPoints = new HashMap<>();
+    public Map<Integer, Vec3d2f> spawnPoints = new HashMap<>();
     public Map<Integer, Map<EnumFacing, BlockPos>> tunnels = new HashMap<>();
     public Map<Integer, Map<EnumFacing, RedstoneTunnelData>> redstoneTunnels = new HashMap<>();
     public Map<Integer, DimensionBlockPos> machinePositions = new HashMap<>();
@@ -73,11 +74,8 @@ public class WorldSavedDataMachines extends WorldSavedData {
         DimensionBlockPos dimPos = getMachineBlockPosition(id);
         WorldServer world = DimensionTools.getWorldServerForDimension(dimPos.getDimension());
         TileEntity result = world.getTileEntity(dimPos.getBlockPos());
-        if (!(result instanceof TileEntityMachine)) { // instanceof returns false on null so this also catches nulls
-            return null;
-        }
 
-        return (TileEntityMachine) result;
+        return result instanceof TileEntityMachine ? (TileEntityMachine) result : null;
     }
 
     public void setMachineRoomPosition(int id, BlockPos roomPos, boolean updateLastGrid) {
@@ -140,9 +138,10 @@ public class WorldSavedDataMachines extends WorldSavedData {
         this.markDirty();
     }
 
-    public void addSpawnPoint(int id, @Nonnull Vec3d destination) {
+    public void addSpawnPoint(int id, @Nonnull Vec3d2f destination) {
         spawnPoints.put(id, destination);
-        CompactMachines3.logger.debug(String.format("Setting spawn point: id=%s, x=%.2f, y=%.2f, z=%.2f", id, destination.x, destination.y, destination.z));
+        CompactMachines3.logger.debug(String.format("Setting spawn point: id=%s, x=%.2f, y=%.2f, z=%.2f, yaw=%.2f, pitch=%.2f",
+                id, destination.getX(), destination.getY(), destination.getY(), destination.yaw, destination.pitch));
         this.markDirty();
     }
 
@@ -356,13 +355,11 @@ public class WorldSavedDataMachines extends WorldSavedData {
 
         NBTTagList spawnPointList = new NBTTagList();
         for (int id : spawnPoints.keySet()) {
-            Vec3d positions = spawnPoints.get(id);
+            Vec3d2f pos = spawnPoints.get(id);
 
             NBTTagCompound tag = new NBTTagCompound();
             tag.setInteger("id", id);
-            tag.setDouble("x", positions.x);
-            tag.setDouble("y", positions.y);
-            tag.setDouble("z", positions.z);
+            tag.setTag("pos", pos.toTag());
             spawnPointList.appendTag(tag);
         }
 
@@ -464,9 +461,14 @@ public class WorldSavedDataMachines extends WorldSavedData {
             for (int i = 0; i < tagList.tagCount(); i++) {
                 NBTTagCompound tag = tagList.getCompoundTagAt(i);
                 int id = tag.hasKey("id", 3) ? tag.getInteger("id") : /* Legacy */ tag.getInteger("coords");
-                Vec3d position = new Vec3d(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
+                Vec3d2f pos;
+                if (tag.hasKey("pos")) {
+                    pos = Vec3d2f.fromTag(tag.getCompoundTag("pos"));
+                } else {
+                    pos = new Vec3d2f(new Vec3d(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z")), 0, 0);
+                }
 
-                spawnPoints.put(id, position);
+                spawnPoints.put(id, pos);
             }
         }
 

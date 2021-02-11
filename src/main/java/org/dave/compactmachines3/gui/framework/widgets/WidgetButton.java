@@ -71,7 +71,6 @@ public class WidgetButton extends Widget {
         // Draw the background
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-
         if(atlasSprite != null) {
             screen.mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
@@ -83,7 +82,7 @@ public class WidgetButton extends Widget {
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 0, 0, width, height, 16.0f, 16.0f);
         }
 
-        GlStateManager.color(1.0F, 1.0F, 1.0F, hovered ? 1.0F : 1.0F);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         screen.mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
 
         // Top Left corner

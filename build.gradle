@@ -45,11 +45,6 @@ repositories {
         url "http://dvs1.progwml6.com/files/maven"
     }
 
-    maven { // jei by ip, because travis couldn't resolve it?!
-        name "Progwml Repo"
-        url "http://104.168.20.187/files/maven"
-    }
-
     maven {
         name = "CoFH Maven"
         url = "http://maven.covers1624.net"

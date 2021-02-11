@@ -8,6 +8,7 @@ import org.dave.compactmachines3.utility.DimensionBlockPos;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.UUID;
 
 public class GuiMachineData {
     public static int machineSize;
@@ -15,7 +16,8 @@ public class GuiMachineData {
 
     public static BlockPos roomPos;
     public static DimensionBlockPos machinePos;
-    public static String owner;
+    public static UUID owner;
+    public static String ownerName;
     public static String customName;
     public static ArrayList<String> playerWhiteList;
     public static boolean locked;
@@ -24,15 +26,7 @@ public class GuiMachineData {
     public static boolean canRender = false;
 
     public static boolean isOwner(EntityPlayer player) {
-        if(owner == null || owner.length() <= 0) {
-            return true;
-        }
-
-        if(!player.getName().equals(owner)) {
-            return false;
-        }
-
-        return true;
+        return player.getUniqueID().equals(owner); // returns false on null owner
     }
 
     public static boolean isUsedCube() {
@@ -40,32 +34,21 @@ public class GuiMachineData {
     }
 
     public static boolean isAllowedToEnter(EntityPlayer player) {
-        if(!locked) {
-            return true;
-        }
-
-        if(owner == null || owner.length() <= 0) {
-            return true;
-        }
-
-        if(player.getName().equals(owner)) {
-            return true;
-        }
-
-        if(playerWhiteList.contains(player.getName())) {
-            return true;
-        }
-
-        return false;
+        return !locked
+                || owner == null
+                || player.getUniqueID().equals(owner)
+                || playerWhiteList.contains(player.getName());
     }
 
-    public static void updateGuiMachineData(int machineSize, int id, BlockPos roomPos, DimensionBlockPos machinePos, String owner, String customName, Set<String> playerWhiteList, boolean locked) {
+    public static void updateGuiMachineData(int machineSize, int id, BlockPos roomPos, DimensionBlockPos machinePos, UUID owner,
+                                            String ownerName, String customName, Set<String> playerWhiteList, boolean locked) {
         canRender = false;
         GuiMachineData.machineSize = machineSize;
         GuiMachineData.id = id;
         GuiMachineData.roomPos = roomPos;
         GuiMachineData.machinePos = machinePos;
         GuiMachineData.owner = owner;
+        GuiMachineData.ownerName = ownerName;
         GuiMachineData.customName = customName;
         GuiMachineData.playerWhiteList = new ArrayList<>(playerWhiteList);
         GuiMachineData.locked = locked;

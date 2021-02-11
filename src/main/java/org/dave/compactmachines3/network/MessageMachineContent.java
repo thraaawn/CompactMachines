@@ -14,6 +14,7 @@ import org.dave.compactmachines3.world.tools.DimensionTools;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class MessageMachineContent implements IMessage {
     protected int machineSize;
@@ -21,7 +22,8 @@ public class MessageMachineContent implements IMessage {
 
     protected BlockPos roomPos;
     protected DimensionBlockPos machinePos;
-    protected String owner;
+    protected UUID owner;
+    protected String ownerName;
     protected String customName;
     protected Set<String> playerWhiteList;
     protected boolean locked;
@@ -34,11 +36,12 @@ public class MessageMachineContent implements IMessage {
         machinePos = data.getMachineBlockPosition(id);
         machineSize = data.machineSizes.getOrDefault(id, EnumMachineSize.MAXIMUM).getDimension();
 
-        if(machinePos != null) {
+        if (machinePos != null) {
             TileEntity te = DimensionTools.getWorldServerForDimension(machinePos.getDimension()).getTileEntity(machinePos.getBlockPos());
             if (te instanceof TileEntityMachine) { // instanceof null returns false
                 TileEntityMachine machine = (TileEntityMachine) te;
-                owner = machine.getOwnerName();
+                owner = machine.getOwner();
+                ownerName = machine.getOwnerName();
                 customName = machine.getCustomName();
                 playerWhiteList = machine.getWhiteList();
                 locked = machine.isLocked();
@@ -65,7 +68,7 @@ public class MessageMachineContent implements IMessage {
         this.machinePos = machinePos;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(UUID owner) {
         this.owner = owner;
     }
 
@@ -77,19 +80,26 @@ public class MessageMachineContent implements IMessage {
     public void fromBytes(ByteBuf buf) {
         machineSize = buf.readInt();
         id = buf.readInt();
-        if (buf.readBoolean())
+        boolean hasRoomPos = buf.readBoolean();
+        if (hasRoomPos)
             roomPos = NBTUtil.getPosFromTag(ByteBufUtils.readTag(buf));
         boolean hasMachineBlock = buf.readBoolean();
-        if(hasMachineBlock) {
+        if (hasMachineBlock) {
             machinePos = new DimensionBlockPos(buf);
-            owner = ByteBufUtils.readUTF8String(buf);
-            customName = ByteBufUtils.readUTF8String(buf);
+            boolean hasOwner = buf.readBoolean();
+            if (hasOwner) {
+                owner = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+                ownerName = ByteBufUtils.readUTF8String(buf);
+            }
+            boolean hasCustomName = buf.readBoolean();
+            if (hasCustomName)
+                customName = ByteBufUtils.readUTF8String(buf);
             locked = buf.readBoolean();
         }
 
         int whiteListSize = buf.readInt();
         playerWhiteList = new HashSet<>();
-        for(int i = 0; i < whiteListSize; i++) {
+        for (int i = 0; i < whiteListSize; i++) {
             String name = ByteBufUtils.readUTF8String(buf);
 
             playerWhiteList.add(name);
@@ -106,19 +116,28 @@ public class MessageMachineContent implements IMessage {
         } else {
             buf.writeBoolean(false);
         }
-        if(machinePos != null) {
+        if (machinePos != null) {
             buf.writeBoolean(true);
             machinePos.writeToByteBuf(buf);
-            String owner = this.owner == null ? "" : this.owner;
-            String customName = this.customName == null ? "" : this.customName;
-            ByteBufUtils.writeUTF8String(buf, owner);
-            ByteBufUtils.writeUTF8String(buf, customName);
+            if (this.owner != null) {
+                buf.writeBoolean(true);
+                ByteBufUtils.writeUTF8String(buf, this.owner.toString());
+                ByteBufUtils.writeUTF8String(buf, this.ownerName);
+            } else {
+                buf.writeBoolean(false);
+            }
+            if (this.customName != null) {
+                buf.writeBoolean(true);
+                ByteBufUtils.writeUTF8String(buf, this.customName);
+            } else {
+                buf.writeBoolean(false);
+            }
             buf.writeBoolean(locked);
         } else {
             buf.writeBoolean(false);
         }
 
-        if(playerWhiteList == null) {
+        if (playerWhiteList == null) {
             buf.writeInt(0);
         } else {
             buf.writeInt(playerWhiteList.size());

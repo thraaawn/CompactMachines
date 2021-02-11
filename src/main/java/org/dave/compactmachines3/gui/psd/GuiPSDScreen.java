@@ -3,8 +3,6 @@ package org.dave.compactmachines3.gui.psd;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
-import org.dave.compactmachines3.gui.psd.Page;
-import org.dave.compactmachines3.gui.psd.Pages;
 import org.dave.compactmachines3.reference.Resources;
 
 import java.io.IOException;

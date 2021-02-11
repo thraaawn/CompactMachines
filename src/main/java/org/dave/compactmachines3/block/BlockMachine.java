@@ -332,15 +332,16 @@ public class BlockMachine extends BlockBase implements IMetaBlockName, ITileEnti
         }
 
         TileEntityMachine machine = (TileEntityMachine)world.getTileEntity(pos);
-        ItemStack playerStack = player.getHeldItemMainhand();
+        EntityPlayerMP serverPlayer = (EntityPlayerMP) player;
+        ItemStack playerStack = serverPlayer.getHeldItemMainhand();
         if(ShrinkingDeviceUtils.isShrinkingDevice(playerStack)) {
-            TeleportationTools.tryToEnterMachine(player, machine);
+            TeleportationTools.tryToEnterMachine(serverPlayer, machine);
             return true;
         }
 
         player.openGui(CompactMachines3.instance, GuiIds.MACHINE_VIEW.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
-        PackageHandler.instance.sendTo(new MessageMachineContent(machine.id), (EntityPlayerMP)player);
-        PackageHandler.instance.sendTo(new MessageMachineChunk(machine.id), (EntityPlayerMP)player);
+        PackageHandler.instance.sendTo(new MessageMachineContent(machine.id), serverPlayer);
+        PackageHandler.instance.sendTo(new MessageMachineChunk(machine.id), serverPlayer);
 
         return true;
     }
