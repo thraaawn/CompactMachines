@@ -1,5 +1,6 @@
 package com.robotgryphon.compactmachines;
 
+import com.robotgryphon.compactmachines.api.Constants;
 import com.robotgryphon.compactmachines.compat.theoneprobe.TheOneProbeCompat;
 import com.robotgryphon.compactmachines.config.CommonConfig;
 import com.robotgryphon.compactmachines.config.EnableVanillaRecipesConfigCondition;
@@ -24,9 +25,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(CompactMachines.MOD_ID)
-public class CompactMachines
-{
-    public static final String MOD_ID = "compactmachines";
+@Mod.EventBusSubscriber(modid = CompactMachines.MOD_ID)
+public class CompactMachines {
+    public static final String MOD_ID = Constants.MOD_ID;
 
     public static final Logger LOGGER = LogManager.getLogger();
 

@@ -1,5 +1,6 @@
 package com.robotgryphon.compactmachines.datagen;
 
+import com.robotgryphon.compactmachines.api.tunnels.recipe.TunnelRecipeBuilder;
 import com.robotgryphon.compactmachines.config.EnableVanillaRecipesConfigCondition;
 import com.robotgryphon.compactmachines.core.Registration;
 import net.minecraft.data.DataGenerator;
@@ -50,6 +51,22 @@ public class RecipeGenerator extends RecipeProvider {
         registerMachineRecipe(consumer, Registration.MACHINE_BLOCK_ITEM_GIANT.get(), Tags.Items.STORAGE_BLOCKS_DIAMOND);
         registerMachineRecipe(consumer, Registration.MACHINE_BLOCK_ITEM_LARGE.get(), Tags.Items.OBSIDIAN);
         registerMachineRecipe(consumer, Registration.MACHINE_BLOCK_ITEM_MAXIMUM.get(), Tags.Items.STORAGE_BLOCKS_EMERALD);
+
+        registerTunnels(consumer);
+    }
+
+    private void registerTunnels(Consumer<IFinishedRecipe> consumer) {
+        TunnelRecipeBuilder.tunnel(Registration.ITEM_TUNNEL_DEF.get())
+                .requires(Items.CHEST).requires(Items.ENDER_PEARL)
+                .requires(Items.REDSTONE).requires(Items.OBSERVER)
+                .unlockedBy("got_ender_pearl", has(Items.ENDER_PEARL))
+                .save(consumer);
+
+        TunnelRecipeBuilder.tunnel(Registration.REDSTONE_IN_TUNNEL.get())
+                .requires(Items.REPEATER).requires(Items.ENDER_PEARL)
+                .requires(Items.REDSTONE).requires(Items.OBSERVER)
+                .unlockedBy("got_ender_pearl", has(Items.ENDER_PEARL))
+                .save(consumer);
     }
 
     protected void registerMachineRecipe(Consumer<IFinishedRecipe> consumer, IItemProvider out, ITag<Item> center) {

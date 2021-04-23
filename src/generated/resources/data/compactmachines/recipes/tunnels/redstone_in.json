@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:repeater"
+    },
+    {
+      "item": "minecraft:ender_pearl"
+    },
+    {
+      "item": "minecraft:redstone"
+    },
+    {
+      "item": "minecraft:observer"
+    }
+  ],
+  "result": {
+    "item": "compactmachines:tunnel",
+    "nbt": {
+      "definition": {
+        "id": "compactmachines:redstone_in"
+      }
+    }
+  }
+}
