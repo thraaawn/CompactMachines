@@ -115,11 +115,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Gradle Dependencies
-        run: ./gradlew --refresh-dependencies
-
       - name: Build JAR with Gradle
-        run: ./gradlew build
+        run: ./gradlew build --max-workers 1
         env:
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

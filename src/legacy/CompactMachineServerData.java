@@ -1,22 +1,21 @@
-package com.robotgryphon.compactmachines.data;
+package com.robotgryphon.compactmachines.data.legacy;
 
-import com.robotgryphon.compactmachines.data.machines.CompactMachinePlayerData;
-import com.robotgryphon.compactmachines.data.machines.CompactMachineRegistrationData;
+import com.robotgryphon.compactmachines.data.codec.NbtListCollector;
+import com.robotgryphon.compactmachines.data.player.CompactMachinePlayerData;
 import com.robotgryphon.compactmachines.reference.EnumMachineSize;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.util.Constants;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+@Deprecated
 public class CompactMachineServerData extends CompactMachineCommonData {
 
     private Map<Integer, CompactMachineRegistrationData> machineData;
@@ -69,7 +68,7 @@ public class CompactMachineServerData extends CompactMachineCommonData {
             return false;
 
         this.machineData.put(newID, compactMachineData);
-        this.playerData.put(newID, new CompactMachinePlayerData(newID));
+        //  TODO this.playerData.put(newID, new CompactMachinePlayerData(newID));
         return true;
     }
 
@@ -121,5 +120,16 @@ public class CompactMachineServerData extends CompactMachineCommonData {
             return Optional.empty();
 
         return Optional.ofNullable(machineData.get(machineId));
+    }
+
+    public void removeMachine(int machineId) {
+        if(!machineData.containsKey(machineId))
+            return;
+
+        machineData.remove(machineId);
+    }
+
+    public void removeMachine(CompactMachineRegistrationData mach) {
+        removeMachine(mach.getId());
     }
 }

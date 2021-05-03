@@ -6,19 +6,14 @@ import com.robotgryphon.compactmachines.api.tunnels.TunnelDefinition;
 import com.robotgryphon.compactmachines.block.tiles.TunnelWallTile;
 import com.robotgryphon.compactmachines.block.walls.TunnelWallBlock;
 import com.robotgryphon.compactmachines.core.Registration;
-import com.robotgryphon.compactmachines.data.CompactMachineServerData;
-import com.robotgryphon.compactmachines.data.SavedMachineData;
-import com.robotgryphon.compactmachines.data.machines.CompactMachineRegistrationData;
 import com.robotgryphon.compactmachines.teleportation.DimensionalPosition;
 import net.minecraft.block.BlockState;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.RegistryObject;
@@ -82,41 +77,42 @@ public class TunnelHelper {
 
         Set<BlockPos> tunnelPositions = new HashSet<>();
 
-        CompactMachineServerData data = SavedMachineData.getInstance(world.getServer()).getData();
-
-        Optional<CompactMachineRegistrationData> mData = data.getMachineData(machine);
-        mData.ifPresent(machineData -> {
-            BlockPos machineCenter = machineData.getCenter();
-            int internalSize = machineData.getSize().getInternalSize();
-
-            AxisAlignedBB allBlocksInMachine = new AxisAlignedBB(machineCenter, machineCenter)
-                    .inflate(internalSize);
-
-            Set<BlockPos> tunnelPositionsUnfiltered = BlockPos.betweenClosedStream(allBlocksInMachine)
-                    .filter(pos -> !compactWorld.isEmptyBlock(pos))
-                    // .filter(pos -> world.getBlockState(pos).getBlock() instanceof TunnelWallBlock)
-                    .map(BlockPos::immutable)
-                    .collect(Collectors.toSet());
-
-            if(!tunnelPositionsUnfiltered.isEmpty()) {
-                Set<BlockPos> tunnelPositionsFiltered = tunnelPositionsUnfiltered
-                        .stream()
-                        .filter(pos -> {
-                            BlockState state = compactWorld.getBlockState(pos);
-
-                            boolean tunnel = state.getBlock() instanceof TunnelWallBlock;
-                            if(!tunnel)
-                                return false;
-
-                            Direction externalSide = state.getValue(TunnelWallBlock.CONNECTED_SIDE);
-                            return externalSide == machineSide;
-                        })
-                        .map(BlockPos::immutable)
-                        .collect(Collectors.toSet());
-
-                tunnelPositions.addAll(tunnelPositionsFiltered);
-            }
-        });
+        // TODO - Reimplement with capability
+//        CompactMachineServerData data = SavedMachineData.getInstance(world.getServer()).getData();
+//
+//        Optional<CompactMachineRegistrationData> mData = data.getMachineData(machine);
+//        mData.ifPresent(machineData -> {
+//            BlockPos machineCenter = machineData.getCenter();
+//            int internalSize = machineData.getSize().getInternalSize();
+//
+//            AxisAlignedBB allBlocksInMachine = new AxisAlignedBB(machineCenter, machineCenter)
+//                    .inflate(internalSize);
+//
+//            Set<BlockPos> tunnelPositionsUnfiltered = BlockPos.betweenClosedStream(allBlocksInMachine)
+//                    .filter(pos -> !compactWorld.isEmptyBlock(pos))
+//                    // .filter(pos -> world.getBlockState(pos).getBlock() instanceof TunnelWallBlock)
+//                    .map(BlockPos::immutable)
+//                    .collect(Collectors.toSet());
+//
+//            if(!tunnelPositionsUnfiltered.isEmpty()) {
+//                Set<BlockPos> tunnelPositionsFiltered = tunnelPositionsUnfiltered
+//                        .stream()
+//                        .filter(pos -> {
+//                            BlockState state = compactWorld.getBlockState(pos);
+//
+//                            boolean tunnel = state.getBlock() instanceof TunnelWallBlock;
+//                            if(!tunnel)
+//                                return false;
+//
+//                            Direction externalSide = state.getValue(TunnelWallBlock.CONNECTED_SIDE);
+//                            return externalSide == machineSide;
+//                        })
+//                        .map(BlockPos::immutable)
+//                        .collect(Collectors.toSet());
+//
+//                tunnelPositions.addAll(tunnelPositionsFiltered);
+//            }
+//        });
 
         return tunnelPositions;
     }

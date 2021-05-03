@@ -12,15 +12,17 @@ import java.util.function.Supplier;
 
 public class TunnelAddedPacket {
 
-    private BlockPos position;
-    private ResourceLocation type;
-
-    private TunnelAddedPacket() {
-    }
+    private final BlockPos position;
+    private final ResourceLocation type;
 
     public TunnelAddedPacket(BlockPos tunnelPos, ResourceLocation tunnelType) {
         this.position = tunnelPos;
         this.type = tunnelType;
+    }
+
+    public TunnelAddedPacket(PacketBuffer buf) {
+        position = buf.readBlockPos();
+        type = buf.readResourceLocation();
     }
 
     public static void handle(TunnelAddedPacket message, Supplier<NetworkEvent.Context> context) {
@@ -39,13 +41,5 @@ public class TunnelAddedPacket {
     public static void encode(TunnelAddedPacket pkt, PacketBuffer buf) {
         buf.writeBlockPos(pkt.position);
         buf.writeResourceLocation(pkt.type);
-    }
-
-    public static TunnelAddedPacket decode(PacketBuffer buf) {
-        TunnelAddedPacket pkt = new TunnelAddedPacket();
-        pkt.position = buf.readBlockPos();
-        pkt.type = buf.readResourceLocation();
-
-        return pkt;
     }
 }

@@ -1,0 +1,60 @@
+Player P
+Machines A,B,C,D
+
+======================================================================
+machine locations (external)
+======================================================================
+A (01): 00, 00, 00 @ overworld
+B (02): 26, 40, 26 @ compact_world (inside A)
+C (03): 51, 40, 51 @ compact_world (inside B)
+D (04): 10, 10, 10 @ overworld
+A (05): 76, 40, 76 @ compact_world (inside D)
+A (06): 51, 40, 51 @ compact_world (inside C)
+
+======================================================================
+Tree View of machine nesting
+======================================================================
+A from 01 (entangled - at 0,0,0 in overworld)
+    B from 02 (entered at 01, 40, 01)
+        C from 03 (entered at 26, 40, 26)
+            A from 06 (entangled - entered at 51, 40, 51)
+
+D from 04 (non-entangled, at 10, 10, 10 in overworld)
+    A from 05 (entangled, at 76, 40, 76 in compact_world)
+
+======================================================================
+Facts
+======================================================================
+B is not entangled and inside A.
+C is not entangled and inside B.
+A is entangled, and inside C and D.
+======================================================================
+
+- P enters A from {0,0,0} (entry-1)
+- P enters B from A.
+- P enters C from B.
+- P reenters A from C.
+
+======================================================================
+Deque status at end of entering A (06) - player_entry_history
+======================================================================
+tail    DimPos { 51, 40, 51   @ compact_world }     (entered A from C)
+-       DimPos { 26, 40, 26   @ compact_world }     (entered C from B)
+-       DimPos { 01, 40, 01   @ compact_world }     (entered B from A)
+head    DimPos { 00, 00, 00   @ overworld }         (entered A)
+
+Player P is represented as "inside" A, B, and C.
+Re-entering machine A does not add a second entry to the list.
+
+======================================================================
+Deque status at end of entering A (05) - player_entry_history
+======================================================================
+tail    DimPos { 79, 40, 76   @ compact_world }     (entered A from D)
+head    DimPos { 10, 00, 10   @ overworld }         (entered D)
+
+Player P is represented as "inside" A, B, C, and D.
+    B and C are included because A is inside C, and the tree was traversed upwards.
+
+
+
+

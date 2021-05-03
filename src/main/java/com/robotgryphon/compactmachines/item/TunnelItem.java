@@ -1,11 +1,13 @@
 package com.robotgryphon.compactmachines.item;
 
 import com.robotgryphon.compactmachines.CompactMachines;
+import com.robotgryphon.compactmachines.api.core.Tooltips;
 import com.robotgryphon.compactmachines.block.tiles.TunnelWallTile;
 import com.robotgryphon.compactmachines.block.walls.TunnelWallBlock;
 import com.robotgryphon.compactmachines.core.Registration;
 import com.robotgryphon.compactmachines.api.tunnels.TunnelDefinition;
 import com.robotgryphon.compactmachines.api.tunnels.redstone.IRedstoneReaderTunnel;
+import com.robotgryphon.compactmachines.util.TranslationUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
@@ -59,6 +61,10 @@ public class TunnelItem extends Item {
                         .withStyle(TextFormatting.ITALIC);
 
                 tooltip.add(type);
+            } else {
+                tooltip.add(TranslationUtil.tooltip(Tooltips.HINT_HOLD_SHIFT)
+                        .withStyle(TextFormatting.DARK_GRAY)
+                        .withStyle(TextFormatting.ITALIC));
             }
         });
     }

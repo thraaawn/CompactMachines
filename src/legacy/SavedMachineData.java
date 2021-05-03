@@ -1,4 +1,4 @@
-package com.robotgryphon.compactmachines.data;
+package com.robotgryphon.compactmachines.data.legacy;
 
 import com.robotgryphon.compactmachines.CompactMachines;
 import com.robotgryphon.compactmachines.core.Registration;
@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 /**
  * Basically a wrapper around CompactMachineServerData. Allows read/write to disk.
  */
+@Deprecated
 public class SavedMachineData extends WorldSavedData {
 
     public final static String DATA_NAME = CompactMachines.MOD_ID + "_machines";

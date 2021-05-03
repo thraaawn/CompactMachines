@@ -1,6 +1,7 @@
-package com.robotgryphon.compactmachines.data;
+package com.robotgryphon.compactmachines.data.legacy;
 
-import com.robotgryphon.compactmachines.data.machines.CompactMachinePlayerData;
+import com.robotgryphon.compactmachines.data.codec.NbtListCollector;
+import com.robotgryphon.compactmachines.data.player.CompactMachinePlayerData;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.common.util.Constants;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Deprecated
 public class CompactMachineCommonData {
     protected Map<Integer, CompactMachinePlayerData> playerData;
 
@@ -18,6 +20,7 @@ public class CompactMachineCommonData {
         this.playerData = new HashMap<>();
     }
 
+    @Deprecated
     public static CompactMachineCommonData getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new CompactMachineCommonData();
@@ -45,39 +48,7 @@ public class CompactMachineCommonData {
     }
 
     public void deserializeNBT(CompoundNBT nbt) {
-        deserializePlayerData(nbt);
+
     }
 
-    public void deserializePlayerData(CompoundNBT nbt) {
-        if (nbt.contains("players")) {
-            ListNBT players = nbt.getList("players", Constants.NBT.TAG_COMPOUND);
-            players.forEach(data -> {
-                CompactMachinePlayerData pmd = CompactMachinePlayerData.fromNBT(data);
-                playerData.put(pmd.getId(), pmd);
-            });
-        }
-    }
-
-
-
-
-    public void updatePlayerData(CompactMachinePlayerData pd) {
-        int id = pd.getId();
-
-        // Do we have an existing player data entry? If not, just add and return
-        if (!playerData.containsKey(id)) {
-            playerData.put(id, pd);
-            return;
-        }
-
-        // If we have an existing entry, update and mark dirty
-        playerData.replace(id, pd);
-    }
-
-    public Optional<CompactMachinePlayerData> getPlayerData(int id) {
-        if (!playerData.containsKey(id))
-            playerData.put(id, new CompactMachinePlayerData(id));
-
-        return Optional.ofNullable(playerData.get(id));
-    }
 }

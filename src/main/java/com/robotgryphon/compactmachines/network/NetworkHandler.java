@@ -19,12 +19,16 @@ public class NetworkHandler {
     );
 
     public static void initialize() {
-        MAIN_CHANNEL.registerMessage(index++, MachinePlayersChangedPacket.class,
-                MachinePlayersChangedPacket::encode, MachinePlayersChangedPacket::decode,
-                MachinePlayersChangedPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        MAIN_CHANNEL.messageBuilder(MachinePlayersChangedPacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(MachinePlayersChangedPacket::encode)
+                .decoder(MachinePlayersChangedPacket::new)
+                .consumer(MachinePlayersChangedPacket::handle)
+                .add();
 
-        MAIN_CHANNEL.registerMessage(index++, TunnelAddedPacket.class,
-                TunnelAddedPacket::encode, TunnelAddedPacket::decode,
-                TunnelAddedPacket::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+        MAIN_CHANNEL.messageBuilder(TunnelAddedPacket.class, index++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(TunnelAddedPacket::encode)
+                .decoder(TunnelAddedPacket::new)
+                .consumer(TunnelAddedPacket::handle)
+                .add();
     }
 }

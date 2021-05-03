@@ -1,4 +1,4 @@
-package com.robotgryphon.compactmachines.data;
+package com.robotgryphon.compactmachines.data.codec;
 
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.nbt.INBT;
@@ -12,8 +12,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-
-import java.util.stream.Collector.Characteristics;
 
 public class NbtListCollector implements Collector<INBT, List<INBT>, ListNBT> {
 

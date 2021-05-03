@@ -1,18 +1,20 @@
 {
   "itemGroup.compactmachines": "Compact Machines",
 
-  "tooltip.compactmachines.machine_id": "Machine ID: %s",
-  "tooltip.compactmachines.owner": "Owner: %s",
+  "tooltip.compactmachines.machine.id": "Machine ID: %s",
+  "tooltip.compactmachines.machine.owner": "Owner: %s",
+  "tooltip.compactmachines.machine.size": "Internal Size: %1$sx%1$sx%1$s",
   "tooltip.compactmachines.unknown_player": "Unknown Player",
-  "tooltip.compactmachines.machine.size": "Size: %1$sx%1$sx%1$s",
-  "tooltip.compactmachines.hold_shift.hint": "Hold shift for details.",
-  "tooltip.compactmachines.psd.hint": "Used as in-game documentation and to enter Compact Machines.",
-  "tooltip.compactmachines.solid_wall.hint": "Warning! Unbreakable for non-creative players!",
-  "tooltip.compactmachines.machine.hint": "A %1$s provides a %2$s room.",
   "tooltip.compactmachines.tunnel_type": "Type ID: %1$s",
 
-  "messages.compactmachines.psd.spawnpoint_set": "New spawn point set.",
-  "messages.compactmachines.no_machine_data": "No machine data loaded; report this.",
+  "tooltip.compactmachines.hint.hold_shift": "Hold shift for details.",
+  "tooltip.compactmachines.details.psd": "Used as in-game documentation and to enter Compact Machines.",
+  "tooltip.compactmachines.details.solid_wall": "Warning! Unbreakable for non-creative players!",
+
+  "message.compactmachines.cannot_enter": "You fumble with the shrinking device, to no avail. It refuses to work.",
+  "message.compactmachines.spawnpoint_set": "New spawn point set.",
+  "message.compactmachines.no_machine_data": "No machine data loaded; report this.",
+  "message.compactmachines.teleport_oob": "An otherworldly force prevents your teleportation.",
 
   "block.compactmachines.machine": "Compact Machine",
   "block.compactmachines.machine_tiny": "Compact Machine (Tiny)",
@@ -38,8 +40,6 @@
   "item.compactmachines.tunnels.item": "Item Tunnel",
   "item.compactmachines.tunnels.redstone_in": "Redstone Tunnel (In)",
   "item.compactmachines.tunnels.redstone_out": "Redstone Tunnel (Out)",
-
-  "compactmachines.cannot_enter": "You fumble with the shrinking device, to no avail. It refuses to work.",
 
   "compactmachines.connected_block": "Connected: %s",
   "compactmachines.direction.side": "Side: %s",

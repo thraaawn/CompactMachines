@@ -3,34 +3,9 @@ name: Gradle Tests (CI)
 on: push
 
 jobs:
-  vars:
-    name: Get Variables
-    runs-on: ubuntu-20.04
-    outputs:
-      release_type: ${{steps.cf_release_type.outputs.value }}
-      mod_version: ${{steps.mod_version.outputs.value }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Release Type
-        id: cf_release_type
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'cf_release_type'
-
-      - name: Mod Version
-        id: mod_version
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'mod_version'
-
   jar:
-    name: Publish JAR
+    name: Test with Gradle
     runs-on: ubuntu-20.04
-    needs: [vars]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,8 +15,15 @@ jobs:
         with:
           java-version: "8.0.282"
 
+      - name: Ensure fresh gradle install
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -rf ~/.gradle
+
       - name: Test JAR with Gradle
-        run: ./gradlew test
+        run: ./gradlew test --max-workers 1
         env:
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

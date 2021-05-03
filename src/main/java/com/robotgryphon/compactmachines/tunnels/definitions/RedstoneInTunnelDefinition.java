@@ -1,19 +1,11 @@
 package com.robotgryphon.compactmachines.tunnels.definitions;
 
-import com.robotgryphon.compactmachines.CompactMachines;
 import com.robotgryphon.compactmachines.api.tunnels.EnumTunnelSide;
 import com.robotgryphon.compactmachines.api.tunnels.ITunnelConnectionInfo;
 import com.robotgryphon.compactmachines.api.tunnels.TunnelDefinition;
-import com.robotgryphon.compactmachines.block.tiles.TunnelWallTile;
-import com.robotgryphon.compactmachines.data.machines.CompactMachineRegistrationData;
 import com.robotgryphon.compactmachines.teleportation.DimensionalPosition;
 import com.robotgryphon.compactmachines.api.tunnels.redstone.IRedstoneReaderTunnel;
 import net.minecraft.block.BlockState;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.server.ServerWorld;
 

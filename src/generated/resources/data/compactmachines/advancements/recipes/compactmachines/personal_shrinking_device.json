@@ -6,7 +6,7 @@
     ]
   },
   "criteria": {
-    "has_recipe": {
+    "picked_up_ender_eye": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -25,7 +25,7 @@
   },
   "requirements": [
     [
-      "has_recipe",
+      "picked_up_ender_eye",
       "has_the_recipe"
     ]
   ]

@@ -1,34 +1,29 @@
 package com.robotgryphon.compactmachines.item;
 
-import com.robotgryphon.compactmachines.CompactMachines;
+import com.robotgryphon.compactmachines.api.core.Messages;
+import com.robotgryphon.compactmachines.api.core.Tooltips;
 import com.robotgryphon.compactmachines.client.gui.PersonalShrinkingDeviceScreen;
 import com.robotgryphon.compactmachines.core.Registration;
-import com.robotgryphon.compactmachines.util.CompactMachineUtil;
+import com.robotgryphon.compactmachines.data.persistent.CompactRoomData;
 import com.robotgryphon.compactmachines.util.PlayerUtil;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import com.robotgryphon.compactmachines.util.TranslationUtil;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.client.gui.GuiUtils;
-import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
-
-import net.minecraft.item.Item.Properties;
 
 public class ItemPersonalShrinkingDevice extends Item {
 
@@ -48,13 +43,12 @@ public class ItemPersonalShrinkingDevice extends Item {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         if (Screen.hasShiftDown()) {
-            tooltip.add(
-                    new TranslationTextComponent("tooltip." + CompactMachines.MOD_ID + ".psd.hint")
-                            .withStyle(TextFormatting.YELLOW));
+            tooltip.add(TranslationUtil.tooltip(Tooltips.Details.PERSONAL_SHRINKING_DEVICE)
+                    .withStyle(TextFormatting.YELLOW));
         } else {
-            tooltip.add(
-                    new TranslationTextComponent("tooltip." + CompactMachines.MOD_ID + ".hold_shift.hint")
-                            .withStyle(TextFormatting.GRAY));
+            tooltip.add(TranslationUtil.tooltip(Tooltips.HINT_HOLD_SHIFT)
+                    .withStyle(TextFormatting.DARK_GRAY)
+                    .withStyle(TextFormatting.ITALIC));
         }
 
     }
@@ -68,7 +62,7 @@ public class ItemPersonalShrinkingDevice extends Item {
 
         // If we aren't in the compact dimension, allow PSD guide usage
         // Prevents misfiring if a player is trying to leave a machine or set their spawn
-        if(world.isClientSide && world.dimension() != Registration.COMPACT_DIMENSION) {
+        if (world.isClientSide && world.dimension() != Registration.COMPACT_DIMENSION) {
             PersonalShrinkingDeviceScreen.show();
             return ActionResult.success(stack);
         }
@@ -77,14 +71,20 @@ public class ItemPersonalShrinkingDevice extends Item {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
 
             if (serverPlayer.level.dimension() == Registration.COMPACT_DIMENSION) {
-                    ServerWorld serverWorld = serverPlayer.getLevel();
+                ServerWorld serverWorld = serverPlayer.getLevel();
                 if (player.isShiftKeyDown()) {
-                    CompactMachineUtil.setMachineSpawn(serverWorld.getServer(), player.blockPosition());
+                    ChunkPos machineChunk = new ChunkPos(player.blockPosition());
 
-                    IFormattableTextComponent tc = new TranslationTextComponent("messages.compactmachines.psd.spawnpoint_set")
-                            .withStyle(TextFormatting.GREEN);
+                    CompactRoomData intern = CompactRoomData.get(serverWorld.getServer());
+                    if (intern != null) {
+                        // Use internal data to set new spawn point
+                        intern.setSpawn(machineChunk, player.position());
 
-                    player.displayClientMessage(tc, true);
+                        IFormattableTextComponent tc = TranslationUtil.message(Messages.MACHINE_SPAWNPOINT_SET)
+                                .withStyle(TextFormatting.GREEN);
+
+                        player.displayClientMessage(tc, true);
+                    }
                 } else {
                     PlayerUtil.teleportPlayerOutOfMachine(serverWorld, serverPlayer);
                 }

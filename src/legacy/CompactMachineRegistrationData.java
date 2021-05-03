@@ -1,4 +1,4 @@
-package com.robotgryphon.compactmachines.data.machines;
+package com.robotgryphon.compactmachines.data.legacy;
 
 import com.robotgryphon.compactmachines.reference.EnumMachineSize;
 import com.robotgryphon.compactmachines.teleportation.DimensionalPosition;
@@ -14,13 +14,14 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Holds information that can be used to uniquely identify a compact machine.
+ * @deprecated Prefer InternalMachineData and CompactMachineInternalData instead.
  */
+@Deprecated
 public class CompactMachineRegistrationData extends CompactMachineBaseData {
 
     private BlockPos center;

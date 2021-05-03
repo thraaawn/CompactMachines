@@ -1,12 +1,19 @@
 package com.robotgryphon.compactmachines.teleportation;
 
 import com.robotgryphon.compactmachines.CompactMachines;
+import com.robotgryphon.compactmachines.api.core.Messages;
 import com.robotgryphon.compactmachines.core.Registration;
+import com.robotgryphon.compactmachines.data.persistent.CompactRoomData;
+import com.robotgryphon.compactmachines.util.TranslationUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.EnderTeleportEvent;
 import net.minecraftforge.event.entity.living.EntityTeleportEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -15,31 +22,64 @@ import net.minecraftforge.fml.common.Mod;
 public class TeleportationEventHandler {
 
     @SubscribeEvent
+    public static void onEnderTeleport(final EnderTeleportEvent evt) {
+        Vector3d target = new Vector3d(
+                evt.getTargetX(),
+                evt.getTargetY(),
+                evt.getTargetZ()
+        );
+
+        Entity ent = evt.getEntity();
+        doEntityTeleportHandle(evt, target, ent);
+    }
+
+    @SubscribeEvent
     public static void onEntityTeleport(final EntityTeleportEvent evt) {
         // Allow teleport commands, we don't want to trap people anywhere
-        if(evt instanceof EntityTeleportEvent.TeleportCommand)
+        if (evt instanceof EntityTeleportEvent.TeleportCommand)
             return;
 
-        // Allow ender pearls as well, since players can teleport around inside machines
-        if(evt instanceof EntityTeleportEvent.EnderPearl)
-            return;
+        Entity ent = evt.getEntity();
+        doEntityTeleportHandle(evt, evt.getTarget(), ent);
+    }
 
-        // Make sure we only target player entities on a server
-        Entity entity = evt.getEntity();
-        if (entity instanceof ServerPlayerEntity) {
-            ServerPlayerEntity sp = (ServerPlayerEntity) entity;
-            if(sp.level.dimension() == Registration.COMPACT_DIMENSION) {
-                if(evt.isCancelable()) {
-                    evt.setCanceled(true);
-                    return;
+
+    /**
+     * Helper to determine if an event should be canceled, by determining if a target is outside
+     * a machine's bounds.
+     *
+     * @param entity Entity trying to teleport.
+     * @param target Teleportation target location.
+     * @return True if teleportation should be cancelled; false otherwise.
+     */
+    private static boolean cancelOutOfBoxTeleport(Entity entity, Vector3d target) {
+        MinecraftServer serv = entity.getServer();
+        if (serv == null)
+            return false;
+
+        ChunkPos machineChunk = new ChunkPos(entity.xChunk, entity.zChunk);
+
+        CompactRoomData intern = CompactRoomData.get(serv);
+        if (intern == null)
+            return false;
+
+        return intern.getInnerBounds(machineChunk)
+                .map(bounds -> !bounds.contains(target))
+                .orElse(false);
+    }
+
+    private static void doEntityTeleportHandle(EntityEvent evt, Vector3d target, Entity ent) {
+        if (ent.level.dimension() == Registration.COMPACT_DIMENSION) {
+            if (cancelOutOfBoxTeleport(ent, target) && evt.isCancelable()) {
+                if (ent instanceof ServerPlayerEntity) {
+                    ((ServerPlayerEntity) ent).displayClientMessage(
+                            TranslationUtil.message(Messages.TELEPORT_OUT_OF_BOUNDS, ent.getName())
+                                    .withStyle(TextFormatting.RED)
+                                    .withStyle(TextFormatting.ITALIC),
+                            true
+                    );
                 }
-                
-                // If the event isn't cancelable, force the position to
-                // be the same as the starting point
-                Vector3d prev = evt.getPrev();
-                evt.setTargetX(prev.x);
-                evt.setTargetY(prev.y);
-                evt.setTargetZ(prev.z);
+                evt.setCanceled(true);
             }
         }
     }

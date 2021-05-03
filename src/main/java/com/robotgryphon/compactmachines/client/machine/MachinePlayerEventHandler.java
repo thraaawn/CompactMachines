@@ -14,8 +14,13 @@ public class MachinePlayerEventHandler {
                                                   MachinePlayersChangedPacket.EnumPlayerChangeType changeType,
                                                   DimensionalPosition pos) {
         ClientWorld w = Minecraft.getInstance().level;
+        if(w == null)
+            return;
 
         if (w.dimension() != pos.getDimension())
+            return;
+
+        if(!w.isLoaded(pos.getBlockPosition()))
             return;
 
         CompactMachineTile tile = (CompactMachineTile) w.getBlockEntity(pos.getBlockPosition());

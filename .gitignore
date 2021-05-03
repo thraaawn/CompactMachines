@@ -30,3 +30,5 @@ forge*changelog.txt
 logs/
 /mods/
 /build-out/
+
+*.dot

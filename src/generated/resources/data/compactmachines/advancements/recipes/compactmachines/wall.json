@@ -6,7 +6,7 @@
     ]
   },
   "criteria": {
-    "has_recipe": {
+    "picked_up_iron": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -25,7 +25,7 @@
   },
   "requirements": [
     [
-      "has_recipe",
+      "picked_up_iron",
       "has_the_recipe"
     ]
   ]

@@ -1,5 +1,7 @@
 package com.robotgryphon.compactmachines.util;
 
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.vector.Vector3i;
 
 public class MathUtil {
@@ -39,5 +41,24 @@ public class MathUtil {
         y -= (int) (s / 2);
 
         return new Vector3i(x, 0, y);
+    }
+
+    public static BlockPos getCenterWithY(ChunkPos chunk, int y) {
+        return chunk.getWorldPosition()
+                .offset(new BlockPos(8, y, 8));
+    }
+
+    public static BlockPos getCenterWithY(Vector3i regionIndex, int y) {
+        ChunkPos chunk = new ChunkPos(
+                regionIndex.getX() * 64,
+                regionIndex.getZ() * 64);
+
+        return getCenterWithY(chunk, y);
+    }
+
+    public static ChunkPos getChunkForRoomIndex(int roomIndex) {
+        Vector3i region = getRegionPositionByIndex(roomIndex);
+        BlockPos roomCenter = getCenterWithY(region, 0);
+        return new ChunkPos(roomCenter);
     }
 }

@@ -5,6 +5,7 @@ import com.robotgryphon.compactmachines.api.tunnels.ITunnelConnectionInfo;
 import com.robotgryphon.compactmachines.block.tiles.TunnelWallTile;
 import com.robotgryphon.compactmachines.teleportation.DimensionalPosition;
 import net.minecraft.block.BlockState;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Direction;
 import net.minecraft.world.IWorldReader;
 
@@ -37,7 +38,10 @@ public class TunnelConnectionInfo implements ITunnelConnectionInfo {
                 return Optional.ofNullable(tunnel.getLevel());
 
             case OUTSIDE:
-                return tunnel.getConnectedWorld();
+                return tunnel.getConnectedPosition().map(p -> {
+                    MinecraftServer serv = tunnel.getLevel().getServer();
+                    return p.getWorld(serv).orElse(null);
+                });
         }
 
         return Optional.empty();

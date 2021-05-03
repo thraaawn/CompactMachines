@@ -1,4 +1,4 @@
-package com.robotgryphon.compactmachines.data.machines;
+package com.robotgryphon.compactmachines.data.legacy;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -9,6 +9,7 @@ import java.util.Optional;
 /**
  * Holds basic information about a compact machine.
  */
+@Deprecated
 public abstract class CompactMachineBaseData implements INBTSerializable<CompoundNBT> {
 
     private int id;
